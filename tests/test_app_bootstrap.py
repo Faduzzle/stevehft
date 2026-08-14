@@ -1778,6 +1778,12 @@ class MarketMakerBlockTest(unittest.TestCase):
         state.best_price.best_ask_px = 100.06
         state.best_price.best_bid_sz = 1
         state.best_price.best_ask_sz = 1
+        # Bump the book-update timestamp so observe_symbol_state actually
+        # re-observes this book instead of treating it as a duplicate update
+        # (it early-returns when last_book_update_ns hasn't advanced), which
+        # otherwise leaves the EWMA-smoothed spread/depth signals driving
+        # allocation_weight stale at the narrow-book reading.
+        state.last_book_update_ns = (state.last_book_update_ns or 0) + 1_000_000_000
         wide = provider.for_symbol("AAPL").values
 
         self.assertGreaterEqual(wide.spread_floor_ticks, narrow.spread_floor_ticks)
