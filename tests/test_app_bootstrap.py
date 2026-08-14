@@ -59,7 +59,7 @@ from src.strategy.params import (
     SymbolStrategyParameters,
 )
 from src.strategy.signals import QuoteGateDecision, compute_inventory_skew
-from src.strategy.strategy_allocator import OnlineStrategyAllocator
+from src.strategy.strategy_allocator import ContextualStrategyAllocator
 from src.telemetry.metrics import build_session_metrics
 from src.telemetry.logger import JsonlEventLogger
 from src.telemetry.recorder import build_session_telemetry
@@ -693,6 +693,11 @@ class BootstrapRuntimeTest(unittest.TestCase):
                 initiator_cfg=Path("initiator.cfg"),
                 telemetry=TelemetryConfig(enable_event_logging=False),
                 market_data=MarketDataConfig(symbols=("AAPL",), update_interval_ms=1),
+                # Quoting is gated behind warmup_minutes_at_open real wall-clock
+                # minutes since the provider's first observation (handles a
+                # mid-session process restart); disable it so a single-cycle
+                # test can observe quoting immediately.
+                risk=RiskConfig(warmup_minutes_at_open=0),
             )
         )
         attach_open_session_clock(runtime)
@@ -936,6 +941,9 @@ class BootstrapRuntimeTest(unittest.TestCase):
                     initiator_cfg=Path("initiator.cfg"),
                     telemetry=TelemetryConfig(),
                     market_data=MarketDataConfig(symbols=("AAPL",), update_interval_ms=1),
+                    # See test_control_cycle_handles_price_reversal_path for why
+                    # this is needed for a single-cycle test.
+                    risk=RiskConfig(warmup_minutes_at_open=0),
                 )
             )
             attach_open_session_clock(runtime)
@@ -4581,8 +4589,16 @@ class MarketMakerBlockTest(unittest.TestCase):
                 initiator_cfg=Path("initiator.cfg"),
                 telemetry=TelemetryConfig(enable_event_logging=False),
                 market_data=MarketDataConfig(symbols=("AAPL",)),
+                # See test_control_cycle_handles_price_reversal_path for why
+                # this is needed for a single-cycle test.
+                risk=RiskConfig(warmup_minutes_at_open=0),
             )
         )
+        # Without an explicit session clock this test depends on real
+        # wall-clock time (market hours) via build_runtime's default
+        # SessionClock; pin it open so the test doesn't flake outside
+        # trading hours.
+        attach_open_session_clock(runtime)
         bootstrap_once(
             runtime,
             trader_factory=lambda username: trader,
@@ -5042,9 +5058,7 @@ class MarketMakerBlockTest(unittest.TestCase):
             tick_size=0.01,
             order_ledger=order_ledger,
             history_config=AdaptiveHistoryConfig(
-                taker_overlay_min_pressure_abs=0.50,
                 taker_overlay_max_queue_share=0.20,
-                taker_overlay_min_edge_ticks=0.05,
                 taker_overlay_cooldown_updates=4,
             ),
         )
@@ -6433,7 +6447,7 @@ class MarketMakerBlockTest(unittest.TestCase):
         runtime.stop()
 
     def test_online_strategy_allocator_rewards_sleeve_with_realized_pnl_credit(self) -> None:
-        allocator = OnlineStrategyAllocator()
+        allocator = ContextualStrategyAllocator()
         weights_before = allocator.update(
             {
                 "BASE_MM": 0.6,

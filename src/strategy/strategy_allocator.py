@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass, field
+from typing import Sequence
 
 
 STRATEGY_SLEEVES: tuple[str, ...] = (
@@ -13,6 +14,11 @@ STRATEGY_SLEEVES: tuple[str, ...] = (
     "NOISE_FADE",
     "CASH",  # do-nothing sleeve: zero signal, zero variance; hedges with cash
 )
+
+# Context vector used when the caller doesn't supply one: bias-only, which
+# makes the allocator behave exactly like a context-free bandit (a single
+# scalar preference per sleeve).
+_BIAS_ONLY_CONTEXT: tuple[float, ...] = (1.0,)
 
 
 @dataclass(slots=True)
@@ -38,7 +44,7 @@ class StrategySleeveWeights:
 
 
 @dataclass(slots=True)
-class OnlineStrategyAllocatorConfig:
+class ContextualStrategyAllocatorConfig:
     learning_rate: float = 0.20
     reward_learning_rate: float = 0.35
     exploration_floor: float = 0.04
@@ -47,11 +53,33 @@ class OnlineStrategyAllocatorConfig:
 
 
 @dataclass(slots=True)
-class OnlineStrategyAllocator:
-    config: OnlineStrategyAllocatorConfig = field(
-        default_factory=OnlineStrategyAllocatorConfig
+class ContextualStrategyAllocator:
+    """Linear contextual bandit over the strategy sleeves.
+
+    Each sleeve owns a weight vector theta_sleeve (one coefficient per
+    context feature) instead of a single context-free scalar. Per update,
+    a sleeve's logit is the dot product theta_sleeve . context, so the
+    softmax-with-floor mixing below can express "prefer LEAD_LAG when
+    toxicity is low and the book is deep" rather than one fixed preference
+    for every market regime.
+
+    The update rule is the same policy-gradient advantage used before
+    (reward-scaled deviation from the realized-score baseline, plus a
+    realized-PnL credit term); the only change is that the gradient step
+    is now `learning_rate * advantage * context` instead of
+    `learning_rate * advantage`, so it moves theta along the context
+    direction rather than a single scalar.
+
+    Passing context=None reduces this to a bias-only context ([1.0]),
+    which makes the allocator behave exactly like the previous
+    context-free multi-armed bandit — this is the case exercised by
+    callers (and tests) that don't pass a context.
+    """
+
+    config: ContextualStrategyAllocatorConfig = field(
+        default_factory=ContextualStrategyAllocatorConfig
     )
-    _logits: dict[str, float] = field(default_factory=dict)
+    _theta: dict[str, list[float]] = field(default_factory=dict)
     _weights: StrategySleeveWeights = field(default_factory=StrategySleeveWeights)
 
     def update(
@@ -60,9 +88,13 @@ class OnlineStrategyAllocator:
         *,
         reward_multiplier: float,
         sleeve_rewards: dict[str, float] | None = None,
+        context: Sequence[float] | None = None,
     ) -> StrategySleeveWeights:
-        if not self._logits:
-            self._logits = {sleeve: 0.0 for sleeve in STRATEGY_SLEEVES}
+        ctx: tuple[float, ...] = tuple(context) if context is not None else _BIAS_ONLY_CONTEXT
+        if not ctx:
+            ctx = _BIAS_ONLY_CONTEXT
+        if not self._theta or len(next(iter(self._theta.values()))) != len(ctx):
+            self._theta = {sleeve: [0.0] * len(ctx) for sleeve in STRATEGY_SLEEVES}
 
         current_weights = self._weights.as_dict()
         centered_score = sum(
@@ -75,6 +107,7 @@ class OnlineStrategyAllocator:
         reward_learning_rate = max(self.config.reward_learning_rate, 0.0)
         logit_cap = max(self.config.max_logit_abs, 1.0)
 
+        logits: dict[str, float] = {}
         for sleeve in STRATEGY_SLEEVES:
             sleeve_score = _clamp(
                 float(sleeve_scores.get(sleeve, 0.0)),
@@ -90,15 +123,22 @@ class OnlineStrategyAllocator:
                 reward * (sleeve_score - centered_score)
                 + reward_learning_rate * sleeve_reward
             )
-            self._logits[sleeve] = _clamp(
-                self._logits.get(sleeve, 0.0) + learning_rate * advantage,
+            theta = self._theta[sleeve]
+            for i, x_i in enumerate(ctx):
+                theta[i] = _clamp(
+                    theta[i] + learning_rate * advantage * x_i,
+                    -logit_cap,
+                    logit_cap,
+                )
+            logits[sleeve] = _clamp(
+                sum(theta[i] * x_i for i, x_i in enumerate(ctx)),
                 -logit_cap,
                 logit_cap,
             )
 
-        max_logit = max(self._logits.values(), default=0.0)
+        max_logit = max(logits.values(), default=0.0)
         raw_weights = {
-            sleeve: math.exp(self._logits[sleeve] - max_logit)
+            sleeve: math.exp(logits[sleeve] - max_logit)
             for sleeve in STRATEGY_SLEEVES
         }
         total_raw = sum(raw_weights.values())

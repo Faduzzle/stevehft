@@ -36,8 +36,8 @@ from src.strategy.param_types import (
     SymbolStrategyParameters,
 )
 from src.strategy.strategy_allocator import (
-    OnlineStrategyAllocator,
-    OnlineStrategyAllocatorConfig,
+    ContextualStrategyAllocator,
+    ContextualStrategyAllocatorConfig,
     sleeve_scale,
 )
 
@@ -134,7 +134,7 @@ class AdaptiveParameterProvider:
     source: str = "adaptive_live_state"
     version: str = "v1-adaptive"
     state_by_symbol: Dict[str, SymbolAdaptiveState] = field(default_factory=dict)
-    sleeve_allocator_by_symbol: Dict[str, OnlineStrategyAllocator] = field(
+    sleeve_allocator_by_symbol: Dict[str, ContextualStrategyAllocator] = field(
         default_factory=dict
     )
 
@@ -254,11 +254,11 @@ class AdaptiveParameterProvider:
     def _sleeve_allocator_for_symbol(
         self,
         symbol: str,
-    ) -> OnlineStrategyAllocator:
+    ) -> ContextualStrategyAllocator:
         allocator = self.sleeve_allocator_by_symbol.get(symbol)
         if allocator is None:
-            allocator = OnlineStrategyAllocator(
-                config=OnlineStrategyAllocatorConfig(
+            allocator = ContextualStrategyAllocator(
+                config=ContextualStrategyAllocatorConfig(
                     learning_rate=self.history_config.sleeve_learning_rate,
                     exploration_floor=self.history_config.sleeve_exploration_floor,
                     min_base_weight=self.history_config.sleeve_min_base_weight,
@@ -1221,6 +1221,16 @@ class AdaptiveParameterProvider:
         )
         adaptive_state.last_realized_symbol_pnl = realized_symbol_pnl
 
+        # Market-regime context for the contextual bandit: lets each sleeve's
+        # preference vary by regime (e.g. LEAD_LAG favored in low-toxicity,
+        # deep-book conditions) instead of one fixed global preference.
+        sleeve_context = (
+            1.0,  # bias term
+            toxicity_score,
+            inventory_pressure_score,
+            _clamp(liquidity_score - 1.0, -1.0, 1.0),
+            _clamp(spread_regime_signal, -1.0, 1.0),
+        )
         sleeve_allocator = self._sleeve_allocator_for_symbol(state.symbol)
         sleeve_weights = sleeve_allocator.update(
             sleeve_signal_scores,
@@ -1233,6 +1243,7 @@ class AdaptiveParameterProvider:
                 1.75,
             ),
             sleeve_rewards=sleeve_rewards,
+            context=sleeve_context,
         )
         base_mm_scale = _clamp(sleeve_scale(sleeve_weights.base_mm), 0.0, 2.0)
         lead_lag_scale = sleeve_scale(sleeve_weights.lead_lag)
