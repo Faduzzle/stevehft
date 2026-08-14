@@ -1,0 +1,14 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# secrets / local connection config
+credentials.py
+
+# run artifacts and logs
+runs/
+
+# local session settings, not shared config
+.claude/settings.local.json
+.claude/worktrees/
+wiki/
