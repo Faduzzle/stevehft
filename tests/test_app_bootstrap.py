@@ -6443,12 +6443,25 @@ class MarketMakerBlockTest(unittest.TestCase):
             values.sleeve_weight_noise_fade,
         ]
 
-        self.assertAlmostEqual(sum(sleeve_weights), 1.0, places=8)
+        # CASH is a competing sleeve (see the CASH scoring note in
+        # params.py), so the six active sleeves plus CASH sum to 1.0, not
+        # the six active sleeves alone. On this cold, single-symbol,
+        # no-signal scenario CASH's score is pulled slightly negative (the
+        # active sleeves average to a small positive score from BASE_MM),
+        # and CASH gets no exploration floor, so it should end up strictly
+        # below the tied, flat-zero-scored active sleeves.
+        self.assertAlmostEqual(
+            sum(sleeve_weights) + values.sleeve_weight_cash,
+            1.0,
+            places=8,
+        )
+        self.assertLess(values.sleeve_weight_cash, values.sleeve_weight_lead_lag)
         self.assertGreaterEqual(
             values.sleeve_weight_base_mm,
             provider.history_config.sleeve_min_base_weight,
         )
         self.assertTrue(all(weight > 0.0 for weight in sleeve_weights))
+        self.assertGreater(values.sleeve_weight_cash, 0.0)
 
         runtime.stop()
 

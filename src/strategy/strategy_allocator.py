@@ -153,14 +153,22 @@ class ContextualStrategyAllocator:
                 for sleeve in STRATEGY_SLEEVES
             }
 
+        # Exploration floor applies only to the active sleeves. CASH has no
+        # need for a discovery budget — "does nothing work?" has a known,
+        # constant payoff (zero P&L, zero variance) rather than one that
+        # needs to be learned through trial, so it should earn weight only
+        # through its score (see the CASH scoring note in params.py), not
+        # get a guaranteed floor share alongside the sleeves being explored.
+        active_sleeves = tuple(sleeve for sleeve in STRATEGY_SLEEVES if sleeve != "CASH")
         floor = _clamp(
             self.config.exploration_floor,
             0.0,
-            1.0 / len(STRATEGY_SLEEVES),
+            1.0 / len(active_sleeves),
         )
+        floor_mass = len(active_sleeves) * floor
         mixed = {
-            sleeve: (1.0 - len(STRATEGY_SLEEVES) * floor) * normalized[sleeve]
-            + floor
+            sleeve: (1.0 - floor_mass) * normalized[sleeve]
+            + (floor if sleeve != "CASH" else 0.0)
             for sleeve in STRATEGY_SLEEVES
         }
 

@@ -1172,7 +1172,7 @@ class AdaptiveParameterProvider:
         sweep_exit_trigger = sweep_outputs.sweep_exit_trigger
         sweep_exit_fill_price = sweep_outputs.sweep_exit_fill_price
         inventory_target_lots = sweep_outputs.inventory_target_lots
-        sleeve_signal_scores = {
+        _active_sleeve_scores = {
             "BASE_MM": _clamp(
                 0.25 * execution_cost_score
                 + 0.20 * queue_fill_support
@@ -1211,7 +1211,21 @@ class AdaptiveParameterProvider:
                 0.0,
                 1.0,
             ),
-            "CASH": 0.0,  # do-nothing; stable zero return, zero variance
+        }
+        # CASH earns weight only when the active sleeves are, on average,
+        # scoring negative (i.e. BASE_MM is being pulled down by toxicity —
+        # the only active sleeve whose score isn't floored at 0.0). A flat
+        # zero average (no active sleeve has any signal right now) scores
+        # CASH at 0.0 too, so it does not out-compete equally-quiet active
+        # sleeves for softmax weight; CASH only wins when doing nothing is
+        # genuinely better than the average active alternative.
+        sleeve_signal_scores = {
+            **_active_sleeve_scores,
+            "CASH": _clamp(
+                -sum(_active_sleeve_scores.values()) / len(_active_sleeve_scores),
+                -1.0,
+                1.0,
+            ),
         }
         pnl_delta = realized_symbol_pnl - adaptive_state.last_realized_symbol_pnl
         sleeve_rewards = _sleeve_rewards_from_realized_pnl(
