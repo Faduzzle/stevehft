@@ -21,10 +21,8 @@ For a repeatable post-run review template, see
 
 Responsibilities:
 
-- load config
-- create the SHIFT session
-- initialize state objects
-- start worker threads
+- own the long-lived `AppRuntime` object: lifecycle (`start`/`stop`/`attach_*`)
+  and the run loop that drives it every cycle
 - coordinate startup, warmup, trading enable, flatten, and shutdown
 - start session telemetry before trading threads begin
 - stop and flush telemetry during shutdown
@@ -33,11 +31,6 @@ Current implementation:
 
 - `AppRuntime`
 - `AppLoopStats`
-- `build_runtime(...)`
-- `create_shift_trader(...)`
-- `resolve_shift_order_book_type(...)`
-- `bootstrap_once(...)`
-- `run_bootstrap_once(...)`
 - `poll_once(...)` style runtime refresh through `AppRuntime.poll_once()`
 - `run_strategy_once(...)` for target generation, reconciliation, and optional routing
 - `control_cycle_once(...)` for one integrated market-data plus strategy cycle
@@ -46,13 +39,30 @@ Current implementation:
 - event-driven continuous runtime through `AppRuntime.run_event_driven_until_stopped(...)`
 - market-data producer thread lifecycle through `start_market_data_stream()` and `stop_market_data_stream()`
 - `attach_default_market_maker(...)` for a prewired market maker that sees both market state and execution state
-- preflight checks via `run_preflight_checks(...)`
 - runtime initialization for:
   - assembled `TradingRuntimeStack`
   - `OrderLedger`
   - `PortfolioLedger`
   - `RiskLimits`
   - `KillSwitchController`
+
+### `bootstrap.py`
+
+Responsibilities: the one-shot startup sequence — everything `main.py` does
+NOT own, because it runs once at process start rather than every cycle.
+
+- load config
+- create the SHIFT session
+- initialize state objects
+- start worker threads
+
+Current implementation:
+
+- `build_runtime(...)`
+- `create_shift_trader(...)`
+- `resolve_shift_order_book_type(...)`
+- `bootstrap_once(...)`
+- `run_bootstrap_once(...)`
   - `OrderRouter`
   - `Reconciler`
 

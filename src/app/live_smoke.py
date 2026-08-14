@@ -7,15 +7,15 @@ from datetime import time as LocalTime
 from pathlib import Path
 from typing import Callable, Sequence
 
-from src.app.main import (
-    TraderLike,
-    AppRuntime,
+from src.app.bootstrap import (
     bootstrap_once,
     build_runtime,
     create_shift_trader,
     resolve_shift_order_book_type,
 )
+from src.app.main import AppRuntime
 from src.app.preflight import run_preflight_checks
+from src.core.session import TraderLike
 from src.core.config import (
     DashboardConfig,
     MarketDataConfig,

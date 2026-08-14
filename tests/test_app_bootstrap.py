@@ -15,7 +15,7 @@ from src.app.live_smoke import (
     run_live_shift_smoke,
     run_live_shift_smoke_until_stopped,
 )
-from src.app.main import bootstrap_once, build_runtime
+from src.app.bootstrap import bootstrap_once, build_runtime
 from src.app.preflight import run_preflight_checks
 from src.core.config import MarketDataConfig, RiskConfig, RuntimeConfig, StrategyConfig, TelemetryConfig
 from src.core.concurrency import SpscRingBuffer
