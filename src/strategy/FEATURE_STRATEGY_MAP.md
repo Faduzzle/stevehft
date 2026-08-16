@@ -3,6 +3,9 @@
 This document is a brainstorming and wiring guide for where different feature
 families should sit in the strategy stack.
 
+This map defines the decision path from an observation to a model input, strategy effect, risk interaction, and validation metric.
+It prevents feature accumulation without a measurable purpose.
+
 The core idea is:
 
 - not every feature should directly move quotes

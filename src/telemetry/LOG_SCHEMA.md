@@ -13,6 +13,10 @@ All JSONL events are emitted as:
 
 So post-run tooling should always read `kind`, `ts_ns`, and `payload`.
 
+The schema is the contract between runtime operation and performance analysis.
+It must support three questions: what did the market show, why did the system act, and what did the broker execute?
+Event completeness is therefore a control requirement, not only an analytics preference.
+
 ## Required Event Families
 
 ### Session / App Lifecycle

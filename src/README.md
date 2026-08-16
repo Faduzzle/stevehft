@@ -11,6 +11,9 @@ The code in this tree should be:
 - testable
 - isolated from deprecated `Old model/` code
 
+The source tree implements a measurable control system.
+Market data becomes typed state, strategy becomes explainable intent, risk becomes a hard decision boundary, execution becomes broker state, and telemetry becomes performance evidence.
+
 ## Folder Map
 
 - `core/`: config, clocks, session lifecycle, symbol setup

@@ -17,6 +17,10 @@ The idea is:
 2. define candidate online algorithms
 3. later bind a feature to a specific algorithm and parameterization
 
+Online algorithms are state-maintenance components in the decision loop.
+They must expose warm-up state, reset behavior, decay behavior, numerical bounds, and failure fallback.
+An online estimate can improve a model, but it must not silently weaken a hard risk control.
+
 ## General Design Rule
 
 Use online algorithms to maintain compact state, not to hide feature ambiguity.

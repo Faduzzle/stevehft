@@ -13,6 +13,9 @@ The goal is to:
 - identify what state and windowing each feature needs
 - support later selection of a production-safe subset
 
+Every catalog entry must map to a decision or diagnostic use.
+The catalog supports systems thinking by recording not only what a feature measures, but also where it runs, what it changes, and how its value is tested.
+
 ## Metadata Template
 
 Each feature should eventually be tagged with:

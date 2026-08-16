@@ -15,6 +15,9 @@ The goal is not to freeze the final math yet. The goal is to make explicit:
 
 This catalog covers:
 
+Parameters are decision-system controls, not isolated tuning knobs.
+Each parameter must have an owner, an update cadence, a bounded range, a diagnostic signal, and a validation metric.
+
 - baseline Cartea-Jaimungal plus GLFT parameters
 - cross-symbol overlays
 - Bouchard-Loeper-Zou style extension hooks

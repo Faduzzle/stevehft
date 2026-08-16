@@ -11,6 +11,10 @@ It is intentionally practical:
 - what must be immutable after crossing a queue boundary
 - how to shut down or recover safely if we enter `kill_switch`
 
+Operations uses the dashboard and telemetry as a control surface.
+The operator must compare current PnL with inventory, reconciliation health, latency, fill quality, safe mode, and model diagnostics.
+A positive PnL value does not clear a control failure.
+
 See also:
 
 - [PRE_LIVE_CHECKLIST.md](/home/faduzzle/projects/stevehft/PRE_LIVE_CHECKLIST.md)

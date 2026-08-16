@@ -16,6 +16,10 @@ The categories are:
 - `V1.5`
 - `research only`
 
+V1 selection protects both performance and interpretability.
+The live set must support quoting, inventory control, execution quality, and dashboard diagnosis without adding uncontrolled compute cost.
+V1.5 and research features remain useful for replay, calibration, regime detection, and future decision models.
+
 ## Selection Principles
 
 A feature belongs in `V1 required` if it is:

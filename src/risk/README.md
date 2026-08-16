@@ -6,6 +6,10 @@
 
 This folder should be strict, boring, and dependable.
 
+Risk is the system's hard control boundary.
+Models can rank opportunities and adjust targets, but risk decides whether the resulting action fits current exposure, capital, timing, market freshness, and state certainty.
+Risk decisions must remain deterministic, explainable, and visible in telemetry.
+
 ## Planned Files
 
 ### `limits.py`

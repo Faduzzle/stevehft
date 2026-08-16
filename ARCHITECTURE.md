@@ -12,6 +12,18 @@ It complements [BUILD.md](/home/faduzzle/projects/stevehft/BUILD.md):
 
 Everything under `Old model/` remains deprecated and is not part of this architecture.
 
+## Systems-Level Operating Model
+
+The architecture treats the trading process as a feedback system with explicit observation, decision, control, execution, and measurement stages.
+Market state drives model output, model output passes through hard controls, broker responses correct local state, and telemetry measures the complete loop.
+
+The system must optimize more than raw PnL.
+It must track economic performance, trading behavior, state consistency, latency, resource cost, and model stability together.
+The dashboard supports live operation, while event logs, replay, and calibration support controlled improvement after each session.
+
+No model can bypass risk, reconciliation, or safe-mode controls.
+No performance claim is complete without evidence from fills, inventory, shortfall, latency, and state-health metrics.
+
 ## Repository Layout
 
 ```text

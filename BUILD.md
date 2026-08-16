@@ -4,6 +4,20 @@
 
 Build a low-latency, competition-ready trading system for the SHIFT HFT environment using the API documented in `wiki/`.
 
+The build target is a measurable decision system, not only an order sender.
+It connects market observations to strategy decisions, risk controls, execution outcomes, and performance evidence.
+Every subsystem must expose enough state and telemetry to explain its behavior and support model improvement.
+
+The design has four linked loops:
+
+1. The market loop maintains clean, time-stamped views of the visible auction.
+2. The decision loop converts market and inventory state into bounded strategy targets.
+3. The control loop blocks unsafe actions and corrects local state with broker reconciliation.
+4. The learning loop uses dashboards, traces, replay, and calibration to improve models and parameters.
+
+The first three loops protect live operation.
+The fourth loop improves performance without placing unvalidated research logic in the hot path.
+
 This document is a fresh design. Everything under `Old model/` is considered deprecated and is intentionally excluded from this build.
 
 Competition requirements that materially affect the design:

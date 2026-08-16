@@ -6,6 +6,10 @@
 
 This folder decides what we want to do, but not how orders are physically submitted.
 
+Strategy is a model layer inside a larger control system.
+It turns market, inventory, execution, and session state into bounded, explainable targets.
+It must expose enough diagnostics for the dashboard, replay tools, and calibration workflow to evaluate both signal quality and risk behavior.
+
 ## Planned Files
 
 ### `base.py`

@@ -8,6 +8,10 @@ telemetry.
 
 This folder should stay strategy-agnostic.
 
+Concurrency is part of the performance model.
+The design separates current authoritative state from event transport so the system can measure latency, detect dropped updates, and preserve ownership.
+The queue improves handoff timing, but it must never become a hidden source of trading truth.
+
 ## `spsc.py`
 
 `SpscRingBuffer` is the default one-producer/one-consumer handoff queue.

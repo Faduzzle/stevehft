@@ -4,6 +4,9 @@ This document tracks higher-order market-making upgrades that are not in the V1
 single-symbol CJ/GLFT loop yet, but are worth building once the single-symbol
 path is stable and profiled.
 
+Prioritize work that improves decision quality and observability together.
+Each upgrade must identify its market hypothesis, risk interaction, compute tier, dashboard evidence, replay test, and rollback condition.
+
 ## 1. Lead-Lag Alpha ("Shadow Quote")
 
 Goal:

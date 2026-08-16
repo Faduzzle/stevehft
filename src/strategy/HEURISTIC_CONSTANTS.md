@@ -1,5 +1,8 @@
 # Strategy Heuristic Constants And Calibration Plan
 
+These constants are temporary model components with explicit operational roles.
+Each value must have a guardrail, a validation metric, and a replacement path when telemetry supports a better estimator.
+
 ## Purpose
 
 This file documents the strategy-side constants that still materially shape

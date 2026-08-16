@@ -6,14 +6,17 @@
 
 This folder should contain runtime wiring, not business logic.
 
+For the repository setup guide and command reference, see
+[README.md](../../README.md).
+
 For the remaining pre-live startup, dry-run, and live-smoke checklist, see
-[PRE_LIVE_CHECKLIST.md](/home/faduzzle/projects/stevehft/PRE_LIVE_CHECKLIST.md).
+[PRE_LIVE_CHECKLIST.md](../../PRE_LIVE_CHECKLIST.md).
 
 For manual recovery and thread-ownership rules, see
-[OPERATIONS_RUNBOOK.md](/home/faduzzle/projects/stevehft/src/app/OPERATIONS_RUNBOOK.md).
+[OPERATIONS_RUNBOOK.md](OPERATIONS_RUNBOOK.md).
 
 For a repeatable post-run review template, see
-[POST_RUN_REVIEW_TEMPLATE.md](/home/faduzzle/projects/stevehft/src/app/POST_RUN_REVIEW_TEMPLATE.md).
+[POST_RUN_REVIEW_TEMPLATE.md](POST_RUN_REVIEW_TEMPLATE.md).
 
 ## Planned Files
 
@@ -88,25 +91,30 @@ Default workflow:
 Every smoke run now prints a preflight report first and refuses to start if config,
 timing, symbols, or output paths are unsafe or invalid.
 
-Example dry-run:
+Example broker-connected dry smoke session:
 
 ```bash
-python3 run.py \
+python3 -m src.app.live_smoke \
+  --symbols AAPL XOM \
   --cycles 20 \
   --update-interval-ms 50 \
   --session-dir runs/live_smoke_dry
 ```
 
-Example live-order smoke:
+Example live-order smoke session:
 
 ```bash
 SHIFT_USERNAME="your_user" SHIFT_PASSWORD="your_password" \
-python3 run.py \
+python3 -m src.app.live_smoke \
+  --symbols AAPL \
   --cycles 20 \
   --update-interval-ms 50 \
   --session-dir runs/live_smoke_orders \
   --execute-orders
 ```
+
+`run.py` is the deployment launcher.
+It enables live order routing through constants in the file and does not parse command-line arguments.
 
 `--symbols` is optional. If omitted, the runtime asks `trader.get_stock_list()`
 for the tradable universe after connecting and subscribes that list.

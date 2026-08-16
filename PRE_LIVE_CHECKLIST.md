@@ -11,6 +11,16 @@ It complements:
 - [ARCHITECTURE.md](/home/faduzzle/projects/stevehft/ARCHITECTURE.md)
 - [HEURISTIC_CONSTANTS.md](/home/faduzzle/projects/stevehft/src/strategy/HEURISTIC_CONSTANTS.md)
 
+The checklist validates four properties together:
+
+- the market model reads the intended books and timestamps them correctly
+- the strategy produces explainable targets under normal and stressed state
+- risk and execution prevent unsafe exposure and order duplication
+- dashboards and telemetry show enough evidence to operate and improve the system
+
+A session is not ready because it produces PnL.
+It is ready only when its decisions, controls, execution state, and performance metrics remain observable and consistent.
+
 The goal is to keep the remaining work concrete and ordered so we do not keep
 adding features while missing basic operational or economic checks.
 

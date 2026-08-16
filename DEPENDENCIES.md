@@ -7,6 +7,11 @@ own `src/` package.
 This document lists the **runtime dependencies**, **optional external
 libraries**, and **live trading config/data files** required to run the system.
 
+Dependencies also define the system's operating boundary.
+The standard library supports deterministic state, risk, execution, telemetry, and dashboard code.
+The SHIFT package supplies the external market and order boundary.
+Optional numerical packages support feature computation but must not become hidden requirements for safety controls.
+
 ## Minimum Runtime
 
 | Dependency | Required | Why |

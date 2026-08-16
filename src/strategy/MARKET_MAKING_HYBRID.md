@@ -11,6 +11,9 @@ The intended direction is a hybrid of:
 
 This document defines the **architecture and block ownership** first.
 
+The strategy is one component in a larger feedback system.
+Its models estimate opportunity and execution quality, but risk controls define the allowed action space and telemetry evaluates whether the estimates remain useful.
+
 That is deliberate.
 
 Before treating any mathematical formula as final, we need to define:

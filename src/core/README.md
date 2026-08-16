@@ -6,6 +6,10 @@
 
 This folder should remain small, stable, and free of strategy-specific behavior.
 
+Core establishes the contracts that make the rest of the system measurable.
+It owns configuration validation, session time, broker lifecycle, and bounded state transport.
+Those contracts let strategy and risk code remain deterministic while dashboards and telemetry observe the same lifecycle.
+
 ## Planned Files
 
 ### `config.py`

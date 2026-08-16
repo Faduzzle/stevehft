@@ -14,6 +14,10 @@ This includes:
 
 This folder is the only place that should directly translate strategy intent into `shift.Order` objects.
 
+Execution is both a broker adapter and a control system.
+It converts strategy targets into bounded actions, maintains the working-order ledger, and measures the difference between intended and realized execution.
+Its telemetry supplies the dashboard and the model-calibration loop with evidence about queue position, fills, cancels, slippage, and shortfall.
+
 It should also emit structured telemetry for every meaningful order lifecycle transition so the system can later explain:
 
 - what the strategy wanted

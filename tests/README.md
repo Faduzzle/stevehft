@@ -6,6 +6,9 @@
 
 These tests should focus on deterministic logic, not on the deprecated `Old model/` behavior.
 
+The test system protects both trading behavior and system observability.
+Tests must verify that models produce explainable targets, controls block unsafe actions, ledgers converge toward broker state, and metrics expose performance regressions.
+
 ## What To Test First
 
 ### State Tests

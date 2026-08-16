@@ -14,6 +14,9 @@ It answers:
 
 The goal is to keep V1 disciplined and implementable.
 
+V1 is a complete control slice, not only a quoting formula.
+It must include market-state modeling, explainable CJ/GLFT decisions, risk gating, execution reconciliation, dashboards, telemetry, and replay evidence.
+
 ## V1 Strategy Shape
 
 V1 is:

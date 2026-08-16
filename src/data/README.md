@@ -6,6 +6,10 @@
 
 This folder is performance-critical because every trading decision depends on it.
 
+The data layer is the market-model boundary.
+It converts broker responses into clean, time-stamped state and derives features that support quoting, risk, execution, and diagnostics.
+It must preserve the distinction between observed external liquidity and the system's own orders.
+
 ## Planned Files
 
 ### `state.py`

@@ -15,6 +15,10 @@ This includes:
 - order commands, submissions, cancels, and replacements
 - portfolio and position snapshots
 
+Telemetry is the evidence layer for the complete decision system.
+It connects market state, model output, risk decisions, broker responses, and performance metrics.
+The dashboard consumes current metrics for operations, while JSONL logs support replay, calibration, incident review, and model promotion.
+
 ## Planned Files
 
 ### `logger.py`

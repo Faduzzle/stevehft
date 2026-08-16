@@ -1,5 +1,8 @@
 # Post-Run Review Template
 
+This review treats each session as evidence about a complete decision system.
+Review economic results, control behavior, execution quality, system performance, and model diagnostics together.
+
 Use this after each read-only dry run or small live-order smoke.
 
 ## Run Metadata

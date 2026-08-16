@@ -13,6 +13,10 @@ We need to answer two different questions:
 
 Those questions should be handled explicitly rather than buried inside strategy code.
 
+The featurespace is a decision-support system.
+Each feature must state the market or execution question it answers, the latency tier that computes it, and the model or control that consumes it.
+Features that lack a decision role remain research inputs and must not enter live quoting by accident.
+
 ## Main Design Rule
 
 Do not implement a large feature library before writing down the feature catalog.

@@ -7,6 +7,10 @@ This document lists the failure modes and race conditions the live system must s
 The point is not to be clever after something breaks.
 The point is to define expected bad situations in advance and decide what the safe behavior is.
 
+These cases define the system-level control model.
+The strategy proposes actions, but execution state, broker state, timing state, and risk state determine whether those actions remain valid.
+Each failure case must produce a visible safe-mode transition and a telemetry record that supports diagnosis.
+
 ## Core Rule
 
 Never trust intended state over broker-confirmed state.
