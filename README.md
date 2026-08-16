@@ -3,6 +3,8 @@
 This repository contains a Python trading system for the SHIFT HFT simulator.
 It collects market data, builds local state, generates market-making targets, applies risk controls, routes orders, and records an audit trail.
 
+Stevens HFT Trading Competition was an interesting experience, definitely a lot of work and learning done with low latency and high fidelity trading systems. 
+
 The system supports two broker-connected modes:
 
 - `src.app.live_smoke`: bounded or continuous smoke sessions with order routing disabled by default.
