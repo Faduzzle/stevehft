@@ -1,4 +1,4 @@
-# SHIFT HFT Trading System
+# Stevens SHIFT HFT Trading System 
 
 This repository contains a Python trading system for the SHIFT HFT simulator.
 It collects market data, builds local state, generates market-making targets, applies risk controls, routes orders, and records an audit trail.
